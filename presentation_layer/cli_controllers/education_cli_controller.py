@@ -81,7 +81,7 @@ class EducationCliController:
                 print("⚠️  You entered an invalid field, skipping this field...")
 
         # result = self.education_service.update_a_degree_of_an_employee(item)
-        response = self.requester.request("PUT", "/api/degrees", degree)
+        response = self.requester.request("PUT", f"/api/degrees/{degree._degree_id}", degree)
         result = response["result"]
         if result == 1:
             print("✅ Education degree updated successfully!") 

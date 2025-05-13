@@ -1,11 +1,12 @@
 import mysql.connector
 from application_layer.classes.education import EducationalDegree
 from application_layer.interfaces.database_manager_interface import IDatabaseManager
-class EducationDBManager:
+from application_layer.interfaces.education_repository_interface import IEducationRepository
+class EducationDBManager(IEducationRepository):
     def __init__(self, db_manager: IDatabaseManager):
         self.db_manager = db_manager
 
-    def add_degree(self, degree: EducationalDegree):
+    def create(self, degree: EducationalDegree):
         db_connection = self.db_manager.get_db_connection()
         cursor = db_connection.cursor()
 
@@ -15,7 +16,7 @@ class EducationDBManager:
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         )
 
-        degree_data = self.degree_object_to_tuple(degree, "add")
+        degree_data = self.degree_object_to_tuple(degree)
 
         try:
             cursor.execute(add_degree_query, degree_data)
@@ -31,7 +32,7 @@ class EducationDBManager:
             db_connection.close()
             return None
 
-    def search_degrees_of_an_employee(self, employee_id):
+    def get(self, employee_id):
         db_connection = self.db_manager.get_db_connection()
         cursor = db_connection.cursor(dictionary=True)
 
@@ -55,7 +56,7 @@ class EducationDBManager:
             db_connection.close()
             return None
 
-    def delete_a_degree_of_an_employee(self, degree_id):
+    def delete(self, degree_id):
         db_connection = self.db_manager.get_db_connection()
         cursor = db_connection.cursor()
         
@@ -78,7 +79,7 @@ class EducationDBManager:
             db_connection.close()
             return None
 
-    def update_a_degree_of_an_employee(self, degree: EducationalDegree):
+    def update(self, degree_id, degree: EducationalDegree):
         db_connection = self.db_manager.get_db_connection()
         cursor = db_connection.cursor()
 
@@ -95,7 +96,10 @@ class EducationDBManager:
             "WHERE degree_id=%s"
         )
 
-        updated_degree_data = self.degree_object_to_tuple(degree, "update")
+        updated_degree_data = list(self.degree_object_to_tuple(degree))
+        updated_degree_data.append(degree_id)
+        tuple(updated_degree_data)
+        
 
         try:
             cursor.execute(query, updated_degree_data)
@@ -112,7 +116,7 @@ class EducationDBManager:
             return None
 
     # Some helper methods
-    def degree_object_to_tuple(self, degree: EducationalDegree, flag):
+    def degree_object_to_tuple(self, degree: EducationalDegree):
         return (
             degree._employee_id,
             degree._degree_name,
@@ -122,16 +126,6 @@ class EducationDBManager:
             degree._gpa,
             degree._gpa_scale,
             degree._year_of_passing
-        ) if flag == "add" else (
-            degree._employee_id,
-            degree._degree_name,
-            degree._institute_name,
-            degree._major,
-            degree._location,
-            degree._gpa,
-            degree._gpa_scale,
-            degree._year_of_passing,
-            degree._degree_id
         )
     
     def db_data_to_degree_list(self, data) -> list[EducationalDegree]:

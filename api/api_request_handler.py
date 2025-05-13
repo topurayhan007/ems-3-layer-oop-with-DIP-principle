@@ -126,17 +126,19 @@ class APIRequestHandler(BaseHTTPRequestHandler):
                 self._send_response(201, "Created", {"result": result})
             
             # Education/Degress API
-            # http://localhost:8000/api/degrees
-            elif self.path == "/api/degrees":
+            # http://localhost:8000/api/degrees/{id}
+            elif self.path.startswith("/api/degrees/"):
+                degree_id = self.path.split("degrees/")[1]
                 degree = self.__json_to_degree_obj(input_data)
-                result = self.education_service.update_a_degree_of_an_employee(degree)
+                result = self.education_service.update_a_degree_of_an_employee(degree_id, degree)
                 self._send_response(201, "Created", {"result": result})
 
             # Experiences API
-            # http://localhost:8000/api/experiences
-            elif self.path == "/api/experiences":
+            # http://localhost:8000/api/experiences/{id}
+            elif self.path.startswith("/api/experiences/"):
+                experience_id = self.path.split("experiences/")[1]
                 experience = self.__json_to_experience_obj(input_data)
-                result = self.experience_service.update_an_experience_of_an_employee(experience)
+                result = self.experience_service.update_an_experience_of_an_employee(experience_id, experience)
                 self._send_response(201, "Created", {"result": result})
 
             else:

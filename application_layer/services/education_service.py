@@ -9,17 +9,17 @@ class EducationService(IEducationService):
         self.education_db_manager = EducationDBManager(db_manager)
 
     def add_degree(self, degree: EducationalDegree):
-        result = self.education_db_manager.add_degree(degree)
+        result = self.education_db_manager.create(degree)
         return result
 
     def search_degrees_of_an_employee(self, employee_id):
-        degrees = self.education_db_manager.search_degrees_of_an_employee(employee_id)
+        degrees = self.education_db_manager.get(employee_id)
         return degrees
 
     def delete_a_degree_of_an_employee(self, degree_id):
-        result = self.education_db_manager.delete_a_degree_of_an_employee(degree_id)
+        result = self.education_db_manager.delete(degree_id)
         return result
 
-    def update_a_degree_of_an_employee(self, degree: EducationalDegree):
-        result = self.education_db_manager.update_a_degree_of_an_employee(degree)
+    def update_a_degree_of_an_employee(self, degree_id, degree: EducationalDegree):
+        result = self.education_db_manager.update(degree_id, degree)
         return result

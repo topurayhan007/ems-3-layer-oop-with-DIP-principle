@@ -15,7 +15,7 @@ class ExperienceDBManager:
             "VALUES (%s, %s, %s, %s, %s, %s)"
         )
 
-        experience_data = self.experience_object_to_tuple(experience, "add")
+        experience_data = self.experience_object_to_tuple(experience)
 
         try:
             cursor.execute(query, experience_data)
@@ -78,7 +78,7 @@ class ExperienceDBManager:
             db_connection.close()
             return None
 
-    def update_an_experience_of_an_employee(self, experience: Experience):
+    def update_an_experience_of_an_employee(self, experience_id, experience: Experience):
         db_connection = self.db_manager.get_db_connection()
         cursor = db_connection.cursor()
 
@@ -93,7 +93,9 @@ class ExperienceDBManager:
             "WHERE experience_id=%s"
         )
 
-        updated_experience_data = self.experience_object_to_tuple(experience, "update")
+        updated_experience_data = list(self.experience_object_to_tuple(experience))
+        updated_experience_data.append(experience_id)
+        tuple(updated_experience_data)
 
         try:
             cursor.execute(query, updated_experience_data)
