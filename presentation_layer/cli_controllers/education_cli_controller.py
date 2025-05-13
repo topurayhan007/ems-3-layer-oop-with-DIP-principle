@@ -47,8 +47,8 @@ class EducationCliController:
     def delete_educational_degree(self, degree_id):
         # result = self.education_service.delete_a_degree_of_an_employee(degree_id)
         response = self.requester.request("DELETE", f"/api/degrees/{degree_id}")
-        result = response["result"]
-        if result == 1:
+
+        if response["result"] and response["result"] == 1:
             print("✅ Educational degree deleted successfully!")
         else:
             print("⚠️  Couldn't delete from database!")
@@ -82,8 +82,8 @@ class EducationCliController:
 
         # result = self.education_service.update_a_degree_of_an_employee(item)
         response = self.requester.request("PUT", f"/api/degrees/{degree._degree_id}", degree)
-        result = response["result"]
-        if result == 1:
+        
+        if response["result"] and response["result"] == 1:
             print("✅ Education degree updated successfully!") 
         else:
             print("⚠️  Couldn't update degree, please try again!") 

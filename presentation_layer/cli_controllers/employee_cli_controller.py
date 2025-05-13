@@ -140,8 +140,7 @@ class EmployeeCliController:
         # self.employee_service.update_an_employee(item)
         response = self.requester.request("PUT", f"/api/employees/{employee._employee_id}", employee)
         
-        result = response["result"]
-        if result == 1:
+        if response["result"] and response["result"] == 1:
             print("✅ Employee updated successfully!") 
         else:
             print("⚠️  Couldn't update employee!")
@@ -149,8 +148,8 @@ class EmployeeCliController:
     def deleteAnEmployee(self, employee:Employee):
         # self.employee_service.delete_an_employee(employee._employee_id)
         response = self.requester.request("DELETE", f"/api/employees/{employee._employee_id}", employee)
-        result = response["result"]
-        if result == 1:
+        
+        if response["result"] and response["result"] == 1:
             print("✅ Employee deleted successfully!") 
         else:
             print("⚠️  Couldn't delete employee!")

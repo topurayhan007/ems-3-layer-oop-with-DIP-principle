@@ -46,8 +46,8 @@ class ExperienceCliController:
     def delete_experience(self, experience_id):
         # result = self.experience_service.delete_an_experience_of_an_employee(experience_id)
         response = self.requester.request("DELETE", f"/api/experiences/{experience_id}")
-        result = response["result"]
-        if result == 1:
+
+        if response["result"] and response["result"] == 1:
             print("✅ Experience deleted from database!")
         else:
             print("⚠️  Couldn't delete from database!")
@@ -88,9 +88,8 @@ class ExperienceCliController:
 
         # result = self.experience_service.update_an_experience_of_an_employee(item)
         response = self.requester.request("PUT", "/api/experiences", item)
-        result = response["result"]
         
-        if result == 1:
+        if response["result"] and response["result"] == 1:
             print("✅ Experience updated successfully!") 
         else:
             print("⚠️  Couldn't update experience, please try again!")
