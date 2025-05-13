@@ -1,6 +1,5 @@
 from http.server import BaseHTTPRequestHandler
 import json
-from dotenv import load_dotenv
 
 import os
 import sys
@@ -8,31 +7,20 @@ import sys
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
 sys.path.append(project_root)
 
-from database_layer.db_setup import DatabaseManager
-from application_layer.services.employee_service import EmployeeService
-from application_layer.services.education_service import EducationService
-from application_layer.services.experience_service import ExperienceService
 from application_layer.classes.employee import Employee
 from application_layer.classes.education import EducationalDegree
 from application_layer.classes.experience import Experience
-
-PORT = 8000
-load_dotenv()
-
-config = {
-    'user': os.getenv("DB_USER"),
-    'password': os.getenv("DB_PASSWORD"),
-    'host': os.getenv("DB_HOST"),
-    'database': os.getenv("DB_NAME"),
-    'raise_on_warnings': True
-}
-
-db_manager = DatabaseManager(config)
-employee_service = EmployeeService(db_manager)
-education_service = EducationService(db_manager)
-experience_service = ExperienceService(db_manager)
+from application_layer.interfaces.employee_service_interface import IEmployeeService
+from application_layer.interfaces.education_service_interface import IEducationService
+from application_layer.interfaces.experience_service_interface import IExperienceService
 
 class APIRequestHandler(BaseHTTPRequestHandler):
+    def __init__(self, employee_service: IEmployeeService, education_service: IEducationService, experience_service: IExperienceService, *args, **kwargs):
+        self.employee_service = employee_service
+        self.education_service = education_service
+        self.experience_service = experience_service
+        super().__init__(*args, **kwargs)
+
     def _send_response(self, status_code, status_msg, data):
         self.send_response(status_code, status_msg)
         self.send_header("Content-type", "application/json")
@@ -48,14 +36,14 @@ class APIRequestHandler(BaseHTTPRequestHandler):
             # employee APIs
             # http://localhost:8000/api/employees
             elif self.path == "/api/employees":
-                employees = employee_service.get_all_employee()
+                employees = self.employee_service.get_all_employee()
                 employee_dict = [employee.__dict__ for employee in employees] if employees else []
                 self._send_response(200, "OK", {"employees": employee_dict})
             
             # http://localhost:8000/api/employees?q={input}
             elif self.path.startswith("/api/employees?q="):
                 search_text = self.path.split("?q=")[1]
-                employees = employee_service.search_employee(search_text)
+                employees = self.employee_service.search_employee(search_text)
                 employee_dict = [employee.__dict__ for employee in employees]
                 self._send_response(200, "OK", {"employees": employee_dict})
             
@@ -63,7 +51,7 @@ class APIRequestHandler(BaseHTTPRequestHandler):
             # http://localhost:8000/api/degrees/{id}
             elif self.path.startswith("/api/degrees/"):
                 employee_id = self.path.split("degrees/")[1]
-                degrees = education_service.search_degrees_of_an_employee(employee_id)
+                degrees = self.education_service.search_degrees_of_an_employee(employee_id)
                 degrees_dict = [edu.__dict__ for edu in degrees] if degrees else []
                 self._send_response(200, "OK", {"degrees": degrees_dict})
 
@@ -71,7 +59,7 @@ class APIRequestHandler(BaseHTTPRequestHandler):
             # http://localhost:8000/api/experiences/{id}
             elif self.path.startswith("/api/experiences/"):
                 employee_id = self.path.split("experiences/")[1]
-                experiences = experience_service.search_experiences_of_an_employee(employee_id)
+                experiences = self.experience_service.search_experiences_of_an_employee(employee_id)
                 experiences_dict = [edu.__dict__ for edu in experiences] if experiences else []
                 self._send_response(200, "OK", {"experiences": experiences_dict})
                 
@@ -96,21 +84,21 @@ class APIRequestHandler(BaseHTTPRequestHandler):
             # http://localhost:8000/api/employees
             if self.path == "/api/employees":
                 employee = self.__json_to_employee_obj(input_data)
-                result = employee_service.add_employee(employee)
+                result = self.employee_service.add_employee(employee)
                 self._send_response(201, "Created", {"result": result})
             
             # Education/Degress API
             # http://localhost:8000/api/degrees
             elif self.path == "/api/degrees":
                 degree = self.__json_to_degree_obj(input_data)
-                result = education_service.add_degree(degree)
+                result = self.education_service.add_degree(degree)
                 self._send_response(201, "Created", {"result": result})
 
             # Experiences API
             # http://localhost:8000/api/experiences
             elif self.path == "/api/experiences":
                 experience = self.__json_to_experience_obj(input_data)                
-                result = experience_service.add_experience(experience)
+                result = self.experience_service.add_experience(experience)
                 self._send_response(201, "Created", {"result": result})
 
             else:
@@ -133,21 +121,21 @@ class APIRequestHandler(BaseHTTPRequestHandler):
             # http://localhost:8000/api/employees
             if self.path == "/api/employees":
                 employee = self.__json_to_employee_obj(input_data)
-                result = employee_service.update_an_employee(employee)
+                result = self.employee_service.update_an_employee(employee)
                 self._send_response(201, "Created", {"result": result})
             
             # Education/Degress API
             # http://localhost:8000/api/degrees
             elif self.path == "/api/degrees":
                 degree = self.__json_to_degree_obj(input_data)
-                result = education_service.update_a_degree_of_an_employee(degree)
+                result = self.education_service.update_a_degree_of_an_employee(degree)
                 self._send_response(201, "Created", {"result": result})
 
             # Experiences API
             # http://localhost:8000/api/experiences
             elif self.path == "/api/experiences":
                 experience = self.__json_to_experience_obj(input_data)
-                result = experience_service.update_an_experience_of_an_employee(experience)
+                result = self.experience_service.update_an_experience_of_an_employee(experience)
                 self._send_response(201, "Created", {"result": result})
 
             else:
@@ -163,21 +151,21 @@ class APIRequestHandler(BaseHTTPRequestHandler):
             # http://localhost:8000/api/degrees/{id}
             if self.path.startswith("/api/employees/"):
                 employee_id = self.path.split("employees/")[1]
-                result = employee_service.delete_an_employee(employee_id)
+                result = self.employee_service.delete_an_employee(employee_id)
                 self._send_response(200, "OK", {"result": result})
 
             # Education/Degrees API
             # http://localhost:8000/api/degrees/{id}
             elif self.path.startswith("/api/degrees/"):
                 employee_id = self.path.split("degrees/")[1]
-                result = education_service.delete_a_degree_of_an_employee(employee_id)
+                result = self.education_service.delete_a_degree_of_an_employee(employee_id)
                 self._send_response(200, "OK", {"result": result})
 
             # Experiences API
             # http://localhost:8000/api/experiences/{id}
             elif self.path.startswith("/api/experiences/"):
                 employee_id = self.path.split("experiences/")[1]
-                result = experience_service.delete_an_experience_of_an_employee(employee_id)
+                result = self.experience_service.delete_an_experience_of_an_employee(employee_id)
                 self._send_response(200, "OK", {"result": result})
 
         except Exception as e:
