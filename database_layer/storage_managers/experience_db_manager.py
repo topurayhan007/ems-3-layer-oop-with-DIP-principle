@@ -1,11 +1,12 @@
 import mysql.connector
 from application_layer.classes.experience import Experience
 from application_layer.interfaces.database_manager_interface import IDatabaseManager
-class ExperienceDBManager:
+from application_layer.interfaces.repository_interface import IRepository
+class ExperienceDBManager(IRepository):
     def __init__(self, db_manager: IDatabaseManager):
         self.db_manager = db_manager
 
-    def add_experience(self, experience: Experience):
+    def create(self, experience: Experience):
         db_connection = self.db_manager.get_db_connection()
         cursor = db_connection.cursor()
 
@@ -31,7 +32,7 @@ class ExperienceDBManager:
             db_connection.close()
             return None
 
-    def search_experiences_of_an_employee(self, employee_id):
+    def get(self, employee_id):
         db_connection = self.db_manager.get_db_connection()
         cursor = db_connection.cursor(dictionary=True)
         
@@ -55,7 +56,7 @@ class ExperienceDBManager:
             db_connection.close()
             return None
 
-    def delete_an_experience_of_an_employee(self, experience_id):
+    def delete(self, experience_id):
         db_connection = self.db_manager.get_db_connection()
         cursor = db_connection.cursor()
 
@@ -78,7 +79,7 @@ class ExperienceDBManager:
             db_connection.close()
             return None
 
-    def update_an_experience_of_an_employee(self, experience_id, experience: Experience):
+    def update(self, experience_id, experience: Experience):
         db_connection = self.db_manager.get_db_connection()
         cursor = db_connection.cursor()
 
@@ -113,7 +114,7 @@ class ExperienceDBManager:
             return None
         
     # Some helper methods
-    def experience_object_to_tuple(self, experience: Experience, flag):
+    def experience_object_to_tuple(self, experience: Experience):
         return (
             experience._employee_id,
             experience._company_name,
@@ -121,14 +122,6 @@ class ExperienceDBManager:
             experience._joining_date,
             experience._ending_date,
             experience._location
-        ) if flag == "add" else (
-            experience._employee_id,
-            experience._company_name,
-            experience._position,
-            experience._joining_date,
-            experience._ending_date,
-            experience._location,
-            experience._experience_id,
         )
     
     def db_data_to_experience_list(self, data) -> list[Experience]:

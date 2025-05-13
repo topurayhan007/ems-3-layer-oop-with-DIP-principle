@@ -9,17 +9,17 @@ class ExperienceService(IExperienceService):
         self.experience_db_manager = ExperienceDBManager(db_manager)
         
     def add_experience(self, experience: Experience):
-        result = self.experience_db_manager.add_experience(experience)
+        result = self.experience_db_manager.create(experience)
         return result
 
     def search_experiences_of_an_employee(self, employee_id):
-        experiences = self.experience_db_manager.search_experiences_of_an_employee(employee_id)
+        experiences = self.experience_db_manager.get(employee_id)
         return experiences
 
     def delete_an_experience_of_an_employee(self, experience_id):
-        result = self.experience_db_manager.delete_an_experience_of_an_employee(experience_id)
+        result = self.experience_db_manager.delete(experience_id)
         return result
 
-    def update_an_experience_of_an_employee(self, experience: Experience):
-        result = self.experience_db_manager.update_an_experience_of_an_employee(experience)
+    def update_an_experience_of_an_employee(self, experience_id, experience: Experience):
+        result = self.experience_db_manager.update(experience_id, experience)
         return result

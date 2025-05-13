@@ -1,8 +1,8 @@
 import mysql.connector
 from application_layer.classes.education import EducationalDegree
 from application_layer.interfaces.database_manager_interface import IDatabaseManager
-from application_layer.interfaces.education_repository_interface import IEducationRepository
-class EducationDBManager(IEducationRepository):
+from application_layer.interfaces.repository_interface import IRepository
+class EducationDBManager(IRepository):
     def __init__(self, db_manager: IDatabaseManager):
         self.db_manager = db_manager
 
