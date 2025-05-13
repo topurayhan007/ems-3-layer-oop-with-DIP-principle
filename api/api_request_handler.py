@@ -118,10 +118,11 @@ class APIRequestHandler(BaseHTTPRequestHandler):
         
         try:
             # Employee API
-            # http://localhost:8000/api/employees
-            if self.path == "/api/employees":
+            # http://localhost:8000/api/employees/{id}
+            if self.path.startswith("/api/employees/"):
+                employee_id = self.path.split("employees/")[1]
                 employee = self.__json_to_employee_obj(input_data)
-                result = self.employee_service.update_an_employee(employee)
+                result = self.employee_service.update_an_employee(employee_id, employee)
                 self._send_response(201, "Created", {"result": result})
             
             # Education/Degress API

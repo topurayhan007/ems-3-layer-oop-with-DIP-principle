@@ -2,12 +2,13 @@
 import mysql.connector
 from application_layer.classes.employee import Employee
 from application_layer.interfaces.database_manager_interface import IDatabaseManager
+from application_layer.interfaces.employee_repository_interface import IEmployeeRepository
 
-class EmployeeDBManager:
+class EmployeeDBManager(IEmployeeRepository):
     def __init__(self, db_manager: IDatabaseManager):
         self.db_manager = db_manager
 
-    def add_employee(self, employee:Employee):
+    def create(self, employee:Employee):
         db_connection = self.db_manager.get_db_connection()
         cursor = db_connection.cursor()
         query = (
@@ -15,7 +16,7 @@ class EmployeeDBManager:
             "(name, date_of_birth, nid, email, phone_no, gender, father_name, mother_name, marital_status, dept, designation, nationality, joining_date, present_address, permanent_address) "
             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         )
-        employee_data = self.employee_object_to_tuple(employee, "add")
+        employee_data = self.employee_object_to_tuple(employee)
 
         try:
             cursor.execute(query, employee_data)
@@ -30,8 +31,33 @@ class EmployeeDBManager:
             cursor.close()
             db_connection.close()
             return None
+
+    def get(self, employee_id):
+        db_connection = self.db_manager.get_db_connection()
+        cursor = db_connection.cursor(dictionary=True)
         
-    def get_all_employee(self):
+        query = (
+            "SELECT * FROM employees "
+            "WHERE employee_id=%s"
+        )
+
+        try:
+            cursor.execute(query, (employee_id,))
+            result = cursor.fetchall()
+            employee = self.db_data_to_employee_list(result)
+            
+            cursor.close()
+            db_connection.close()
+            return employee
+        
+        except mysql.connector.Error as err:
+            print("error:", err.msg)
+            cursor.close()
+            db_connection.close()
+            return None
+    
+
+    def get_all(self):
         db_connection = self.db_manager.get_db_connection()
         cursor = db_connection.cursor(dictionary=True)
         
@@ -54,7 +80,7 @@ class EmployeeDBManager:
             db_connection.close()
             return None
         
-    def search_employee(self, search_text):
+    def search(self, search_text):
         db_connection = self.db_manager.get_db_connection()
         cursor = db_connection.cursor(dictionary=True)
 
@@ -93,7 +119,7 @@ class EmployeeDBManager:
             db_connection.close()
             return None
 
-    def delete_an_employee(self, employee_id):
+    def delete(self, employee_id):
         db_connection = self.db_manager.get_db_connection()
         cursor = db_connection.cursor()
 
@@ -115,7 +141,7 @@ class EmployeeDBManager:
             db_connection.close()
             return None
         
-    def update_an_employee(self, employee: Employee):
+    def update(self, employee_id, employee: Employee):
         db_connection = self.db_manager.get_db_connection()
         cursor = db_connection.cursor()
         
@@ -139,7 +165,9 @@ class EmployeeDBManager:
             "WHERE employee_id=%s"
         )
 
-        updated_employee_data = self.employee_object_to_tuple(employee, "update")
+        updated_employee_data = list(self.employee_object_to_tuple(employee))
+        updated_employee_data.append(employee_id)
+        tuple(updated_employee_data)
 
         try:
             cursor.execute(query, updated_employee_data)
@@ -157,7 +185,7 @@ class EmployeeDBManager:
             return None
 
     # Some helper methods
-    def employee_object_to_tuple(self, employee: Employee, flag):
+    def employee_object_to_tuple(self, employee: Employee):
         return (
             employee._name,
             employee._date_of_birth,
@@ -174,24 +202,8 @@ class EmployeeDBManager:
             employee._joining_date,
             employee._present_address,
             employee._permanent_address
-        ) if flag == "add" else (
-            employee._name,
-            employee._date_of_birth,
-            employee._nid,
-            employee._email,
-            employee._phone_no,
-            employee._gender,
-            employee._father_name,
-            employee._mother_name,
-            employee._marital_status,
-            employee._dept,
-            employee._designation,
-            employee._nationality,
-            employee._joining_date,
-            employee._present_address,
-            employee._permanent_address,
-            employee._employee_id
         )
+
     
     def db_data_to_employee_list(self, data) -> list[Employee]:
         employees: list[Employee] = []

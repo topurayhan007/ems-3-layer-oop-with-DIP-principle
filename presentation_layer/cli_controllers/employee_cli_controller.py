@@ -138,7 +138,8 @@ class EmployeeCliController:
             employee._joining_date = datetime.strptime(employee._joining_date, "%d-%m-%Y").strftime("%Y-%m-%d")
 
         # self.employee_service.update_an_employee(item)
-        response = self.requester.request("PUT", "/api/employees", employee)
+        response = self.requester.request("PUT", f"/api/employees/{employee._employee_id}", employee)
+        
         result = response["result"]
         if result == 1:
             print("✅ Employee updated successfully!") 
