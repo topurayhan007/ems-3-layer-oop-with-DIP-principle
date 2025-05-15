@@ -1,5 +1,4 @@
 from http.server import HTTPServer
-from api_request_handler import APIRequestHandler
 from create_api_handler import create_handler
 import os
 from dotenv import load_dotenv
@@ -14,7 +13,6 @@ from application_layer.services.employee_service import EmployeeService
 from application_layer.services.education_service import EducationService
 from application_layer.services.experience_service import ExperienceService
 
-PORT = 8000
 load_dotenv()
 
 config = {
@@ -25,16 +23,20 @@ config = {
     'raise_on_warnings': True
 }
 
-db_manager = DatabaseManager(config)
-employee_service = EmployeeService(db_manager)
-education_service = EducationService(db_manager)
-experience_service = ExperienceService(db_manager)
-
-def run(server_class=HTTPServer, handler_class=create_handler(employee_service, education_service, experience_service)):
-    server_address = ('', PORT)
-    print(f"Server running at http://localhost:{PORT}")
+def run(server_class, handler_class, port):
+    server_address = ('', port)
+    print(f"Server running at http://localhost:{port}")
     httpd = server_class(server_address, handler_class)
     httpd.serve_forever()
 
 if __name__ == "__main__":
-    run()
+    db_manager = DatabaseManager(config)
+    employee_service = EmployeeService(db_manager)
+    education_service = EducationService(db_manager)
+    experience_service = ExperienceService(db_manager)
+
+    PORT = 8000
+    server_class = HTTPServer
+    handler_class = create_handler(employee_service, education_service, experience_service)
+
+    run(server_class, handler_class, PORT)
