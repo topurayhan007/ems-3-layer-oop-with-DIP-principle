@@ -1,11 +1,11 @@
 # Bridge between CLI controllers and DB managers
 from application_layer.classes.employee import Employee
 from application_layer.interfaces.repository_interface import IRepository
-from database_layer.storage_managers.employee_db_manager import EmployeeDBManager
+from application_layer.interfaces.employee_repository_interface import IEmployeeRepository
 from application_layer.interfaces.employee_service_interface import IEmployeeService
 
 class EmployeeService(IEmployeeService):
-    def __init__(self, employee_db_manager: IRepository):
+    def __init__(self, employee_db_manager: IEmployeeRepository):
         self.employee_db_manager = employee_db_manager
     
     def add_employee(self, employee: Employee):
