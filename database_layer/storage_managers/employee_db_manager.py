@@ -2,9 +2,9 @@
 import mysql.connector
 from application_layer.classes.employee import Employee
 from application_layer.interfaces.database_manager_interface import IDatabaseManager
-from application_layer.interfaces.repository_interface import IRepository
+from application_layer.interfaces.employee_repository_interface import IEmployeeRepository
 
-class EmployeeDBManager(IRepository):
+class EmployeeDBManager(IEmployeeRepository):
     def __init__(self, db_manager: IDatabaseManager):
         self.db_manager = db_manager
 

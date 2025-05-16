@@ -8,10 +8,12 @@ from presentation_layer.cli_controllers.employee_cli_controller import EmployeeC
 from presentation_layer.cli_controllers.education_cli_controller import EducationCliController
 from presentation_layer.cli_controllers.experience_cli_controller import ExperienceCliController
 from presentation_layer.cli_ui import CLI
-from application_layer.interfaces.database_manager_interface import IDatabaseManager
 from application_layer.interfaces.employee_service_interface import IEmployeeService
 from application_layer.interfaces.education_service_interface import IEducationService
 from application_layer.interfaces.experience_service_interface import IExperienceService
+from database_layer.storage_managers.employee_db_manager import EmployeeDBManager
+from database_layer.storage_managers.education_db_manager import EducationDBManager
+from database_layer.storage_managers.experience_db_manager import ExperienceDBManager
 
 load_dotenv()
 
@@ -43,9 +45,14 @@ if __name__ == "__main__":
         print(f"Database initialization failed: {e}")
         exit(1)
 
+    # Database Managers
+    employee_db_manager = EmployeeDBManager(db_manager)
+    education_db_manager = EducationDBManager(db_manager)
+    experience_db_manager = ExperienceDBManager(db_manager)
+
     # Services objects
-    employee_service = EmployeeService(db_manager)
-    education_service = EducationService(db_manager)
-    experience_service = ExperienceService(db_manager)
+    employee_service = EmployeeService(employee_db_manager)
+    education_service = EducationService(education_db_manager)
+    experience_service = ExperienceService(experience_db_manager)
 
     main(employee_service, education_service, experience_service)

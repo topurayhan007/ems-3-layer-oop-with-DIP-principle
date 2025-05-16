@@ -1,12 +1,11 @@
 from application_layer.classes.education import EducationalDegree
-from application_layer.interfaces.database_manager_interface import IDatabaseManager
+from application_layer.interfaces.repository_interface import IRepository
 from database_layer.storage_managers.education_db_manager import EducationDBManager
 from application_layer.interfaces.education_service_interface import IEducationService
 
 class EducationService(IEducationService):
-    def __init__(self, db_manager: IDatabaseManager):
-        self.db_manager = db_manager
-        self.education_db_manager = EducationDBManager(db_manager)
+    def __init__(self, education_db_manager: IRepository):
+        self.education_db_manager = education_db_manager
 
     def add_degree(self, degree: EducationalDegree):
         result = self.education_db_manager.create(degree)

@@ -1,12 +1,11 @@
 from application_layer.classes.experience import Experience
-from application_layer.interfaces.database_manager_interface import IDatabaseManager
+from application_layer.interfaces.repository_interface import IRepository
 from database_layer.storage_managers.experience_db_manager import ExperienceDBManager
 from application_layer.interfaces.experience_service_interface import IExperienceService
 
 class ExperienceService(IExperienceService):
-    def __init__(self, db_manager: IDatabaseManager):
-        self.db_manager = db_manager
-        self.experience_db_manager = ExperienceDBManager(db_manager)
+    def __init__(self, experience_db_manager: IRepository):
+        self.experience_db_manager = experience_db_manager
         
     def add_experience(self, experience: Experience):
         result = self.experience_db_manager.create(experience)
